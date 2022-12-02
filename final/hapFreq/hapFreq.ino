@@ -2,9 +2,9 @@
 
 #define RESISTOR 10000 // Same value as resistor
 #define RUBBER_CORD A0
-#define DLED 13
+#define DLED 7
 
-const int threshold = 880;  // an arbitrary threshold level that's in the range of the analog input
+const int threshold = 870;  // an arbitrary threshold level that's in the range of the analog input
 
 const int motorPin = 3;
 const int headPhones = 9; 
@@ -35,27 +35,30 @@ void setup() { // Runs once, and sets pins to OUTPUT
 
 void vibeSound() {
   int analogValue = analogRead(RUBBER_CORD); // read the value of the sensor (potentiometer)
-
-  // Current chosen note is less then 9
-  if (currentNote < maxNotes) {
+  
+  if (currentNote < maxNotes) { // Current chosen note is less then 9
     if (analogValue > threshold) { // Turn on the LED, motor vibrates, and pause audio output
       noTone(headPhones);
       currentNote++; // Increments through the array
       digitalWrite(DLED, HIGH); // Ardunio LED
 
-      // Vibration Motors
-      int i=0;
-      do {
-        i++;
-        digitalWrite(motorPin, HIGH); //vibrate
-        delay(200);  // delay 0.2 second
-        digitalWrite(motorPin, LOW);  //stop vibrating
-        delay(200); //delay 0.2 second
+        // Vibrate Motors
+        int i=0;
+        do {
+          i++;
+          digitalWrite(motorPin, HIGH); //vibrate
+          delay(200);  // delay 0.2 second
+          digitalWrite(motorPin, LOW);  //stop vibrating
+          delay(200); //delay 0.2 second
+        }
+        while(i<2);
+        delay (1000); // delay 1 second between vibrations
       }
-      while(i<2);
-      delay (1000); // delay 1 second between vibrations
+      
+      else if (currentNote < 1) { // Idles the program with LED on (Wait state). No sound
+        digitalWrite(DLED, HIGH); // Ardunio LED
       }
-       
+      
       else { // Play current note and turn off LED
         tone(headPhones, notes[currentNote]);
         digitalWrite(DLED, LOW);
@@ -64,23 +67,20 @@ void vibeSound() {
     else {
       Serial.println("You've made it to the end of the sequence");
 
-      // Blink LED 13
-      digitalWrite(DLED, HIGH); // Ardunio LED
-      delay(200);  // delay 0.2 second
-      digitalWrite(DLED, LOW); // Ardunio LED
-      delay(200);  // delay 0.2 second
-
-      int j=0;
-      do {
-        j++;
-        digitalWrite(motorPin, HIGH); //vibrate
-        delay(100);  // delay 0.1 second
-        digitalWrite(motorPin, LOW); // stop vibrating
-        delay(100); //delay 0.1 second
-      }
-      while(j<10); // Vibrates sequence 10 times upon victory
-      delay(2000); // Take 2 seconds to reset
-      resetFunc();
+        // Vibrate Motors and blink LED
+        int j=0;
+        do {
+          j++;
+          digitalWrite(motorPin, HIGH); //vibrate
+          digitalWrite(DLED, HIGH); // Ardunio LED
+          delay(100);  // delay 0.1 second
+          digitalWrite(motorPin, LOW); // stop vibrating
+          digitalWrite(DLED, LOW); // Ardunio LED
+          delay(100); //delay 0.1 second
+        }
+        while(j<12); // Vibrates sequence 12 times upon victory
+        delay(2000); // Take 2 seconds to reset
+      resetFunc(); // Resets the ardunio through code
     }
 }
 
